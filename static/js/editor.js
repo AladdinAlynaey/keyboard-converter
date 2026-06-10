@@ -357,6 +357,25 @@ const LayoutEditorUI = {
                 document.getElementById('import-modal').classList.remove('hidden');
                 document.getElementById('import-text-area').value = '';
                 document.getElementById('import-file-input').value = '';
+                const label = document.getElementById('import-file-label');
+                if (label) {
+                    label.textContent = 'Drag & drop your file here or click to browse';
+                    label.classList.remove('file-upload-name');
+                }
+            });
+        }
+
+        const fileInput = document.getElementById('import-file-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                const label = document.getElementById('import-file-label');
+                if (label && e.target.files && e.target.files[0]) {
+                    label.textContent = `Selected: ${e.target.files[0].name}`;
+                    label.classList.add('file-upload-name');
+                } else if (label) {
+                    label.textContent = 'Drag & drop your file here or click to browse';
+                    label.classList.remove('file-upload-name');
+                }
             });
         }
 
