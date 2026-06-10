@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Local Environment Configurations (Secrets)
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.staging
+
+# System / OS
+.DS_Store
+Thumbs.db
+
+# PM2 Logs & Configs
+*.log
+pm2-*.json
+pids/
+logs/
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace

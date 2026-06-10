@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: keyboard_converter_app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5454:5000" # Expose strictly on loopback to Nginx reverse proxy
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://db:27017/
+      - FLASK_ENV=production
+    depends_on:
+      - db
+    networks:
+      - converter_net
+
+  db:
+    image: mongo:6.0
+    container_name: keyboard_converter_db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017" # Secure port mapping: binds to host loopback interface only, not 0.0.0.0
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - converter_net
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  converter_net:
+    driver: bridge
