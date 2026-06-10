@@ -38,7 +38,7 @@
 The application is structured around a fast client-side SPA conversion engine with secure API-driven server configurations, fallbacks, and database persistence.
 
 <p align="center">
-  <img src="./static/screenshots/architecture_flowchart.png" alt="System Architecture Flowchart" width="800" style="border-radius: 12px; border: 1px solid var(--border-glass);" />
+  <img src="./static/screenshots/architecture_flowchart_v2.png" alt="System Architecture Flowchart" width="800" style="border-radius: 12px; border: 1px solid var(--border-glass);" />
 </p>
 
 ```mermaid
