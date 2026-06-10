@@ -45,20 +45,20 @@ The application is structured around a fast client-side SPA conversion engine wi
 graph TD
     User([User Typist]) -->|1. Type Key Events| ClientSPA[Client Web App - SPA]
     
-    subgraph Client-Side (Zero Latency)
+    subgraph "Client-Side (Zero Latency)"
         ClientSPA -->|2. Direct Offline Translation| JSConverter[converter.js Mapping Engine]
         JSConverter -->|3. Output Text Update| ClientSPA
     end
 
-    subgraph Server-Side API Layer (Secure Verification)
+    subgraph "Server-Side API Layer (Secure Verification)"
         ClientSPA -->|4. AI Correction Request| FlaskApp[Flask API Gateway - app.py]
         FlaskApp -->|5. Verify JWT & CSRF| SecurityHeaders[Middleware & Auth Filters]
         SecurityHeaders -->|6. Query Profile & Settings| UsersDB[(MongoDB Users Collection)]
         
-        SecurityHeaders -->|7. Forward Context| OpenRouter[OpenRouter API Gateway]
-        OpenRouter -->|8. Fetch LLM Corrections| LlamaModel[Meta Llama 3.3 70B Model]
+        SecurityHeaders -->|7. Forward Context| AIApi[External AI Service API]
+        AIApi -->|8. Fetch LLM Corrections| LLMModel[Large Language Model - Inference]
         
-        LlamaModel -->|9. Corrected Text JSON| FlaskApp
+        LLMModel -->|9. Corrected Text JSON| FlaskApp
         FlaskApp -->|10. Log Statistics| StatsDB[(MongoDB History Collection)]
         FlaskApp -->|11. Final Contextual Output| ClientSPA
     end
