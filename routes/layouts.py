@@ -136,15 +136,24 @@ def publish_layout(id):
 
     # Compare against system default layouts
     from routes.converter import DEFAULT_EN_AR_MAPPING, DEFAULT_AR_EN_MAPPING
-    if current_mapping == DEFAULT_EN_AR_MAPPING or current_mapping == DEFAULT_AR_EN_MAPPING:
+    sorted_current = dict(sorted(current_mapping.items()))
+    sorted_default_en_ar = dict(sorted(DEFAULT_EN_AR_MAPPING.items()))
+    sorted_default_ar_en = dict(sorted(DEFAULT_AR_EN_MAPPING.items()))
+
+    if sorted_current == sorted_default_en_ar or sorted_current == sorted_default_ar_en:
         return jsonify({"error": "Failed to publish: This layout configuration matches a system default layout."}), 400
 
-    # Compare against all other published layouts in the database (excluding itself)
-    duplicate_published = layout_repo.published_collection.find_one({
-        "mapping": current_mapping,
-        "layout_id": {"$ne": id}
-    })
-    if duplicate_published:
+    # Compare against all other published layouts in the database (excluding itself) using Python order-independent matching
+    is_duplicate = False
+    for pub in layout_repo.published_collection.find():
+        if pub.get("layout_id") == id:
+            continue
+        pub_mapping = pub.get("mapping")
+        if pub_mapping and dict(sorted(pub_mapping.items())) == sorted_current:
+            is_duplicate = True
+            break
+
+    if is_duplicate:
         return jsonify({"error": "Failed to publish: This layout configuration is identical to another already published layout."}), 400
 
     success = layout_repo.publish_layout(id, user_id, tags)

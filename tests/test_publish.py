@@ -19,10 +19,12 @@ def client():
 
 def test_publish_system_default_duplicate(client):
     mock_user = {"id": "user_123", "email": "test@test.com", "is_verified": True}
+    # Create copy of DEFAULT_EN_AR_MAPPING with reversed key order to test order independence
+    reversed_keys_mapping = dict(reversed(list(DEFAULT_EN_AR_MAPPING.items())))
     mock_layout = {
         "id": "layout_123",
         "name": "My Custom Arabic Layout",
-        "mapping": DEFAULT_EN_AR_MAPPING
+        "mapping": reversed_keys_mapping
     }
     
     with patch("routes.layouts.user_repo.get_by_id", return_value=mock_user), \
@@ -41,9 +43,10 @@ def test_publish_existing_published_duplicate(client):
         "mapping": custom_mapping
     }
     
+    # We mock find to return a mapping with different key order {"b": "y", "a": "z"} to test order-independence
     with patch("routes.layouts.user_repo.get_by_id", return_value=mock_user), \
          patch("routes.layouts.layout_repo.get_user_layout", return_value=mock_layout), \
-         patch("routes.layouts.layout_repo.published_collection.find_one", return_value={"layout_id": "other_layout_abc"}):
+         patch("routes.layouts.layout_repo.published_collection.find", return_value=[{"layout_id": "other_layout_abc", "mapping": {"b": "y", "a": "z"}}]):
          
          response = client.post("/api/layouts/layout_123/publish", json={"tags": ["custom"]})
          assert response.status_code == 400
@@ -60,7 +63,7 @@ def test_publish_success(client):
     
     with patch("routes.layouts.user_repo.get_by_id", return_value=mock_user), \
          patch("routes.layouts.layout_repo.get_user_layout", return_value=mock_layout), \
-         patch("routes.layouts.layout_repo.published_collection.find_one", return_value=None), \
+         patch("routes.layouts.layout_repo.published_collection.find", return_value=[]), \
          patch("routes.layouts.layout_repo.publish_layout", return_value=True):
          
          response = client.post("/api/layouts/layout_123/publish", json={"tags": ["custom"]})
