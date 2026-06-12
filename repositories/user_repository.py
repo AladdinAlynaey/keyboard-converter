@@ -23,6 +23,7 @@ class UserRepository(BaseRepository):
             "verification_token_expires": None,
             "password_reset_token": None,
             "password_reset_expires": None,
+            "profile_picture": None,
             "ai_settings": {
                 "preferred_model": "meta-llama/llama-3.3-70b-instruct:free",
                 "temperature": 0.3,

@@ -152,6 +152,7 @@ def get_marketplace_layout(layout_id):
     # Dynamic creator/publisher name from users collection
     creator = user_repo.get_by_id(layout["user_id"])
     layout["creator_name"] = creator.get("name", "Anonymous") if creator else layout.get("creator_name", "Anonymous")
+    layout["creator_avatar"] = creator.get("profile_picture") if creator else None
 
     # Fetch latest average rating and favorite status
     rating_stats = layout_repo.get_layout_rating_stats(layout_id)

@@ -130,6 +130,13 @@ const MarketplaceUI = {
 
         container.replaceChildren();
 
+        // Show skeleton loader placeholders while loading
+        for (let i = 0; i < 3; i++) {
+            const skel = document.createElement('div');
+            skel.className = 'skeleton skeleton-card';
+            container.appendChild(skel);
+        }
+
         const query = document.getElementById('marketplace-search-input').value;
         const language = document.getElementById('marketplace-filter-lang').value;
         const sortBy = document.getElementById('marketplace-sort-select').value;
@@ -139,16 +146,35 @@ const MarketplaceUI = {
             const res = await API.get(url);
             const layouts = await res.json();
             
+            // Clear skeletons
+            container.replaceChildren();
+
             if (!res.ok) {
                 app.toast("Failed to load marketplace layouts", "error");
                 return;
             }
 
             if (layouts.length === 0) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'card placeholder-text';
-                placeholder.textContent = "No public layouts found matching your filters.";
-                container.appendChild(placeholder);
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.style.gridColumn = '1 / -1';
+
+                const icon = document.createElement('div');
+                icon.className = 'empty-state-icon';
+                icon.innerHTML = '<i data-lucide="search" style="width: 48px; height: 48px;"></i>';
+
+                const title = document.createElement('div');
+                title.className = 'empty-state-title';
+                title.textContent = 'No layouts found';
+
+                const desc = document.createElement('div');
+                desc.className = 'empty-state-description';
+                desc.textContent = 'Try adjusting your search terms or filters to find what you\'re looking for.';
+
+                emptyState.appendChild(icon);
+                emptyState.appendChild(title);
+                emptyState.appendChild(desc);
+                container.appendChild(emptyState);
                 return;
             }
 
@@ -156,7 +182,9 @@ const MarketplaceUI = {
                 const card = this.createMarketplaceCard(layout);
                 container.appendChild(card);
             });
+            if (window.lucide) { window.lucide.createIcons(); }
         } catch (err) {
+            container.replaceChildren();
             app.toast("Marketplace connection error", "error");
         }
     },
@@ -169,10 +197,26 @@ const MarketplaceUI = {
         title.textContent = layout.name;
         card.appendChild(title);
 
-        // Subtitle with creator name
+        // Subtitle with creator name and avatar
         const creatorLine = document.createElement('div');
         creatorLine.className = 'card-creator-line';
-        creatorLine.textContent = `👤 by ${layout.creator_name || 'Anonymous'}`;
+        
+        const avatarSpan = document.createElement('div');
+        avatarSpan.className = 'card-creator-avatar';
+        if (layout.creator_avatar) {
+            const avatarImg = document.createElement('img');
+            avatarImg.src = layout.creator_avatar;
+            avatarImg.alt = layout.creator_name || 'Creator';
+            avatarSpan.appendChild(avatarImg);
+        } else {
+            avatarSpan.textContent = (layout.creator_name || 'A').substring(0, 1).toUpperCase();
+        }
+        
+        creatorLine.appendChild(avatarSpan);
+        
+        const nameText = document.createTextNode(` by ${layout.creator_name || 'Anonymous'}`);
+        creatorLine.appendChild(nameText);
+        
         card.appendChild(creatorLine);
 
         const metaLine = document.createElement('div');
@@ -184,15 +228,15 @@ const MarketplaceUI = {
         
         const downloads = document.createElement('span');
         downloads.className = 'badge badge-dl';
-        downloads.textContent = `📥 ${layout.downloads || 0}`;
+        downloads.innerHTML = `<i data-lucide="download" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> ${layout.downloads || 0}`;
 
         const likes = document.createElement('span');
         likes.className = 'badge badge-likes';
-        likes.textContent = `❤️ ${layout.likes || 0}`;
+        likes.innerHTML = `<i data-lucide="heart" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px; fill: var(--error-text);"></i> ${layout.likes || 0}`;
 
         const rating = document.createElement('span');
         rating.className = 'badge badge-rating';
-        rating.textContent = `★ ${layout.average_rating || '0.0'} (${layout.ratings_count || 0})`;
+        rating.innerHTML = `<i data-lucide="star" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px; fill: var(--warning-text); stroke: var(--warning-text);"></i> ${layout.average_rating || '0.0'} (${layout.ratings_count || 0})`;
 
         metaLine.appendChild(langBadge);
         metaLine.appendChild(downloads);
@@ -239,6 +283,21 @@ const MarketplaceUI = {
             document.getElementById('md-layout-rating').textContent = `${layout.average_rating || '0.0'}/5 (${layout.ratings_count || 0})`;
             document.getElementById('md-layout-creator').textContent = layout.creator_name || 'Anonymous';
 
+            // Populate publisher avatar
+            const creatorFallback = document.getElementById('md-creator-fallback');
+            const creatorImg = document.getElementById('md-creator-img');
+            if (creatorFallback && creatorImg) {
+                if (layout.creator_avatar) {
+                    creatorImg.src = layout.creator_avatar;
+                    creatorImg.classList.remove('hidden');
+                    creatorFallback.classList.add('hidden');
+                } else {
+                    creatorImg.classList.add('hidden');
+                    creatorFallback.classList.remove('hidden');
+                    creatorFallback.textContent = (layout.creator_name || 'A').substring(0, 1).toUpperCase();
+                }
+            }
+
             // Update rating star display if logged in
             this.resetStarDisplay();
             if (app.user) {
@@ -257,10 +316,15 @@ const MarketplaceUI = {
             // Update details favorite button text
             const favBtn = document.getElementById('btn-md-favorite');
             if (favBtn) {
-                favBtn.textContent = layout.is_favorite ? '⭐ Favorited' : '☆ Favorite';
+                if (layout.is_favorite) {
+                    favBtn.innerHTML = '<i data-lucide="star" style="width: 16px; height: 16px; fill: currentColor;"></i> Favorited';
+                } else {
+                    favBtn.innerHTML = '<i data-lucide="star" style="width: 16px; height: 16px;"></i> Favorite';
+                }
             }
 
             document.getElementById('marketplace-detail-modal').classList.remove('hidden');
+            if (window.lucide) { window.lucide.createIcons(); }
         } catch (err) {
             app.toast("Failed to load layout details", "error");
         }
@@ -280,10 +344,26 @@ const MarketplaceUI = {
                 countSpan.textContent = comments.length;
 
                 if (comments.length === 0) {
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'placeholder-text';
-                    placeholder.textContent = 'No comments posted yet. Be the first to comment!';
-                    feed.appendChild(placeholder);
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.style.padding = 'var(--space-7) var(--space-4)';
+
+                    const icon = document.createElement('div');
+                    icon.className = 'empty-state-icon';
+                    icon.innerHTML = '<i data-lucide="message-square" style="width: 48px; height: 48px;"></i>';
+
+                    const title = document.createElement('div');
+                    title.className = 'empty-state-title';
+                    title.textContent = 'No comments yet';
+
+                    const desc = document.createElement('div');
+                    desc.className = 'empty-state-description';
+                    desc.textContent = 'Be the first to share your thoughts about this layout.';
+
+                    emptyState.appendChild(icon);
+                    emptyState.appendChild(title);
+                    emptyState.appendChild(desc);
+                    feed.appendChild(emptyState);
                     return;
                 }
 
@@ -294,6 +374,23 @@ const MarketplaceUI = {
                     if (index >= 3) {
                         item.classList.add('collapsed-comment', 'hidden');
                     }
+
+                    // Create comment avatar block on the left
+                    const avatarSpan = document.createElement('div');
+                    avatarSpan.className = 'comment-avatar';
+                    if (comment.creator_avatar) {
+                        const avatarImg = document.createElement('img');
+                        avatarImg.src = comment.creator_avatar;
+                        avatarImg.alt = comment.creator_name || 'Commenter';
+                        avatarSpan.appendChild(avatarImg);
+                    } else {
+                        avatarSpan.textContent = (comment.creator_name || 'A').substring(0, 1).toUpperCase();
+                    }
+                    item.appendChild(avatarSpan);
+
+                    // Create details container on the right
+                    const details = document.createElement('div');
+                    details.className = 'comment-details';
 
                     const meta = document.createElement('div');
                     meta.className = 'comment-meta';
@@ -307,12 +404,12 @@ const MarketplaceUI = {
 
                     meta.appendChild(author);
                     meta.appendChild(date);
-                    item.appendChild(meta);
+                    details.appendChild(meta);
 
                     const content = document.createElement('div');
                     content.className = 'comment-content';
                     content.textContent = comment.content;
-                    item.appendChild(content);
+                    details.appendChild(content);
 
                     // If comment is own, allow delete
                     if (app.user && app.user.id === comment.user_id) {
@@ -330,6 +427,7 @@ const MarketplaceUI = {
                         meta.appendChild(delBtn);
                     }
 
+                    item.appendChild(details);
                     feed.appendChild(item);
                 });
 
@@ -356,6 +454,7 @@ const MarketplaceUI = {
                     feed.appendChild(toggleBtn);
                 }
             }
+            if (window.lucide) { window.lucide.createIcons(); }
         } catch (e) {}
     },
 

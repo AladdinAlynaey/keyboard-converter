@@ -240,12 +240,15 @@ class AppController {
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         if (mobileMenuBtn) {
             mobileMenuBtn.addEventListener('click', () => {
-                const sidebar = document.querySelector('.app-sidebar');
-                if (sidebar.style.display === 'flex') {
-                    sidebar.style.display = 'none';
-                } else {
-                    sidebar.style.display = 'flex';
-                }
+                this.toggleMobileSidebar();
+            });
+        }
+
+        // Sidebar backdrop click to close
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (backdrop) {
+            backdrop.addEventListener('click', () => {
+                this.closeMobileSidebar();
             });
         }
     }
@@ -359,9 +362,7 @@ class AppController {
         }
 
         // Close mobile menu if open
-        if (window.innerWidth <= 768) {
-            document.querySelector('.app-sidebar').style.display = 'none';
-        }
+        this.closeMobileSidebar();
 
         // Remove active state from all sidebar items
         document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
@@ -402,6 +403,7 @@ class AppController {
             // View not found, fallback
             document.getElementById('view-landing').classList.remove('hidden');
         }
+        if (window.lucide) { window.lucide.createIcons(); }
     }
 
     triggerViewCallback(viewName, hash) {
@@ -442,6 +444,24 @@ class AppController {
         window.location.hash = path;
     }
 
+    toggleMobileSidebar() {
+        const sidebar = document.querySelector('.app-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (sidebar.classList.contains('open')) {
+            this.closeMobileSidebar();
+        } else {
+            sidebar.classList.add('open');
+            if (backdrop) backdrop.classList.add('visible');
+        }
+    }
+
+    closeMobileSidebar() {
+        const sidebar = document.querySelector('.app-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (sidebar) sidebar.classList.remove('open');
+        if (backdrop) backdrop.classList.remove('visible');
+    }
+
     updateAuthStateUI() {
         const userBlock = document.getElementById('sidebar-user-block');
         const headerActions = document.getElementById('header-user-actions');
@@ -453,7 +473,14 @@ class AppController {
             // RENDER USER BLOCK IN SIDEBAR SECURELY
             const avatar = document.createElement('div');
             avatar.className = 'user-avatar';
-            avatar.textContent = (this.user.name || this.user.email).substring(0, 2).toUpperCase();
+            if (this.user.profile_picture) {
+                const img = document.createElement('img');
+                img.src = this.user.profile_picture;
+                img.alt = this.user.name || 'User Avatar';
+                avatar.appendChild(img);
+            } else {
+                avatar.textContent = (this.user.name || this.user.email).substring(0, 2).toUpperCase();
+            }
             
             const details = document.createElement('div');
             details.className = 'user-details';
@@ -501,6 +528,7 @@ class AppController {
             guestText.textContent = 'Guest Mode';
             userBlock.appendChild(guestText);
         }
+        if (window.lucide) { window.lucide.createIcons(); }
     }
 
     async handleLogout() {
@@ -591,7 +619,9 @@ class AppController {
         toast.className = `toast ${type}`;
         
         const icon = document.createElement('span');
-        icon.textContent = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+        icon.className = 'toast-icon';
+        const lucideName = type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info';
+        icon.innerHTML = `<i data-lucide="${lucideName}" style="width: 16px; height: 16px;"></i>`;
         
         const textSpan = document.createElement('span');
         textSpan.textContent = message;
@@ -599,6 +629,7 @@ class AppController {
         toast.appendChild(icon);
         toast.appendChild(textSpan);
         container.appendChild(toast);
+        if (window.lucide) { window.lucide.createIcons(); }
 
         // Remove toast after 4 seconds
         setTimeout(() => {
@@ -628,9 +659,33 @@ const HistoryUI = {
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.setAttribute('colspan', '6');
-                td.className = 'placeholder-text';
-                td.style.textAlign = 'center';
-                td.textContent = 'No conversions recorded yet.';
+                td.style.padding = '0';
+                
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+
+                const icon = document.createElement('div');
+                icon.className = 'empty-state-icon';
+                icon.innerHTML = '<i data-lucide="clipboard-list" style="width: 48px; height: 48px;"></i>';
+
+                const title = document.createElement('div');
+                title.className = 'empty-state-title';
+                title.textContent = 'No conversions yet';
+
+                const desc = document.createElement('div');
+                desc.className = 'empty-state-description';
+                desc.textContent = 'Your conversion history will appear here once you start using the converter.';
+
+                const cta = document.createElement('button');
+                cta.className = 'btn btn-primary';
+                cta.textContent = 'Go to Converter';
+                cta.addEventListener('click', () => app.navigateTo('converter'));
+
+                emptyState.appendChild(icon);
+                emptyState.appendChild(title);
+                emptyState.appendChild(desc);
+                emptyState.appendChild(cta);
+                td.appendChild(emptyState);
                 tr.appendChild(td);
                 container.appendChild(tr);
                 return;
@@ -688,6 +743,7 @@ const HistoryUI = {
 
                 container.appendChild(tr);
             });
+            if (window.lucide) { window.lucide.createIcons(); }
         } catch (e) {
             app.toast("Failed to load history list.", "error");
         }
@@ -820,6 +876,43 @@ const ProfileUI = {
             });
         }
 
+        // Avatar Upload Handler
+        const avatarInput = document.getElementById('avatar-input');
+        if (avatarInput) {
+            avatarInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (file.size > 2 * 1024 * 1024) {
+                    app.toast("File size exceeds the 2MB limit.", "error");
+                    avatarInput.value = '';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                try {
+                    app.toast("Uploading profile picture...", "info");
+                    const res = await API.post('/api/auth/profile/avatar', formData);
+                    const data = await res.json();
+                    
+                    if (res.ok) {
+                        app.toast("Profile picture updated successfully!", "success");
+                        await app.refreshUserProfile();
+                        app.updateAuthStateUI();
+                        this.loadProfileDetails();
+                    } else {
+                        app.toast(data.error || "Failed to upload profile picture.", "error");
+                    }
+                } catch (err) {
+                    app.toast("Failed to upload profile picture due to connection error.", "error");
+                } finally {
+                    avatarInput.value = '';
+                }
+            });
+        }
+
         this.setupDone = true;
     },
 
@@ -828,6 +921,23 @@ const ProfileUI = {
         document.getElementById('profile-email').value = app.user.email;
         document.getElementById('profile-name').value = app.user.name || '';
 
+        // Render profile page avatar preview
+        const avatarPreview = document.getElementById('profile-avatar-preview');
+        const avatarFallback = document.getElementById('profile-avatar-fallback');
+        const avatarImg = document.getElementById('profile-avatar-img');
+        
+        if (avatarPreview && avatarFallback && avatarImg) {
+            if (app.user.profile_picture) {
+                avatarImg.src = app.user.profile_picture;
+                avatarImg.classList.remove('hidden');
+                avatarFallback.classList.add('hidden');
+            } else {
+                avatarImg.classList.add('hidden');
+                avatarFallback.classList.remove('hidden');
+                avatarFallback.textContent = (app.user.name || app.user.email).substring(0, 2).toUpperCase();
+            }
+        }
+
         // Render account verification status
         const isVerified = app.user.is_verified;
         const badge = document.getElementById('profile-verification-badge');
@@ -835,15 +945,16 @@ const ProfileUI = {
         if (badge) {
             badge.replaceChildren();
             if (isVerified) {
-                badge.textContent = "✅ Verified";
+                badge.innerHTML = '<i data-lucide="check-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Verified';
                 badge.className = "badge success";
                 if (resendBtn) resendBtn.classList.add('hidden');
             } else {
-                badge.textContent = "❌ Not Verified";
+                badge.innerHTML = '<i data-lucide="x-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Not Verified';
                 badge.className = "badge danger";
                 if (resendBtn) resendBtn.classList.remove('hidden');
             }
         }
+        if (window.lucide) { window.lucide.createIcons(); }
 
         // Disable or load AI Settings options based on global enablement
         const aiEnabled = app.aiConfig.ai_enabled;
@@ -905,10 +1016,26 @@ const ProfileUI = {
             if (favRes.ok) {
                 const favs = await favRes.json();
                 if (favs.length === 0) {
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'placeholder-text';
-                    placeholder.textContent = 'No favorite layouts added yet.';
-                    favContainer.appendChild(placeholder);
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.style.padding = 'var(--space-7) var(--space-4)';
+
+                    const icon = document.createElement('div');
+                    icon.className = 'empty-state-icon';
+                    icon.innerHTML = '<i data-lucide="star" style="width: 48px; height: 48px;"></i>';
+
+                    const title = document.createElement('div');
+                    title.className = 'empty-state-title';
+                    title.textContent = 'No favorites yet';
+
+                    const desc = document.createElement('div');
+                    desc.className = 'empty-state-description';
+                    desc.textContent = 'Browse the marketplace and favorite layouts you love.';
+
+                    emptyState.appendChild(icon);
+                    emptyState.appendChild(title);
+                    emptyState.appendChild(desc);
+                    favContainer.appendChild(emptyState);
                     return;
                 }
 
@@ -916,7 +1043,7 @@ const ProfileUI = {
                     const item = document.createElement('div');
                     item.className = 'card-meta-line';
                     item.style.padding = '8px 0';
-                    item.style.borderBottom = '1px dashed var(--border-glass)';
+                    item.style.borderBottom = '1px dashed var(--border-secondary)';
                     item.style.justifyContent = 'space-between';
 
                     const nameSpan = document.createElement('span');
@@ -936,6 +1063,7 @@ const ProfileUI = {
                     favContainer.appendChild(item);
                 });
             }
+            if (window.lucide) { window.lucide.createIcons(); }
         } catch (err) {}
     }
 };

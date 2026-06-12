@@ -36,3 +36,5 @@ logs/
 *.swo
 *.sublime-project
 *.sublime-workspace
+.agent/
+static/uploads/

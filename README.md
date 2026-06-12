@@ -24,12 +24,11 @@
 1. [System Architecture](#-system-architecture)
 2. [Key Capabilities](#-key-capabilities)
 3. [Repository Directory Map](#-repository-directory-map)
-4. [API Endpoints Reference](#-api-endpoints-reference)
-5. [Security & Compliance Guardrails](#-security--compliance-guardrails)
-6. [Local Installation & Setup](#-local-installation--setup)
-7. [Docker & Containerized Deployments](#-docker--containerized-deployments)
-8. [PM2 Production Process Operations](#-pm2-production-process-operations)
-9. [Nginx Reverse Proxy Configuration](#-nginx-reverse-proxy-configuration)
+4. [Security & Compliance Guardrails](#-security--compliance-guardrails)
+5. [Local Installation & Setup](#-local-installation--setup)
+6. [Docker & Containerized Deployments](#-docker--containerized-deployments)
+7. [PM2 Production Process Operations](#-pm2-production-process-operations)
+8. [Nginx Reverse Proxy Configuration](#-nginx-reverse-proxy-configuration)
 
 ---
 
@@ -129,58 +128,6 @@ graph TD
 └── templates/
     └── index.html              # Single Page Application HTML Template
 ```
-
----
-
-## 📡 API Endpoints Reference
-
-### 🔐 Authentication & Profile Blueprint (`/api/auth`)
-
-| Method | Endpoint | Description | Payload/Params | Auth Required |
-| :--- | :--- | :--- | :--- | :--- |
-| `POST` | `/register` | Create account & send verification email | `UserRegisterSchema` | No |
-| `POST` | `/login` | Authenticate credentials & set cookies | `UserLoginSchema` | No |
-| `POST` | `/logout` | Revoke active refresh session & clear cookies | None | Yes |
-| `POST` | `/refresh` | Exchange refresh cookie for new access cookie | None | Yes (Refresh) |
-| `GET` | `/verify-email` | Verify email token | `?token=<token_str>` | No |
-| `POST` | `/resend-verification` | Dispatch verification link to logged-in user | None | Yes |
-| `POST` | `/reset-password/request` | Dispatch password reset link | `PasswordResetRequestSchema` | No |
-| `POST` | `/reset-password/confirm` | Apply new password | `PasswordResetConfirmSchema` | No |
-| `POST` | `/google` | Exchange Google OAuth code | `{"code": "auth_code"}` | No |
-| `GET` | `/profile` | Retrieve profile metadata | None | Yes |
-| `PUT` | `/profile` | Update profile information | `ProfileUpdateSchema` | Yes |
-| `PUT` | `/ai-settings` | Update AI model preferences | `AIConverterSettingsSchema` | Yes |
-| `GET` | `/stats` | Retrieve layout and conversion count stats | None | Yes |
-
-### 🛠️ Layout Management Blueprint (`/api/layouts`)
-
-| Method | Endpoint | Description | Payload/Params | Auth Required |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/` | Fetch all user custom layouts | None | Yes |
-| `POST` | `/` | Create a new custom layout mapping | `LayoutCreateSchema` | Yes |
-| `GET` | `/<id>` | Fetch specific layout by ID | None | Yes |
-| `PUT` | `/<id>` | Modify layout configurations | `LayoutUpdateSchema` | Yes |
-| `DELETE`| `/<id>` | Delete layout, comments, and ratings | None | Yes |
-| `POST` | `/<id>/duplicate`| Duplicate layout with a new name | `{"name": "New Name"}` | Yes |
-| `POST` | `/<id>/publish` | Publish layout to the public marketplace | `{"tags": ["tag1"]}` | Yes (Verified) |
-| `POST` | `/<id>/unpublish` | Remove layout from marketplace | None | Yes |
-| `GET` | `/<id>/export` | Export layout config as JSON | None | Yes (Verified) |
-| `POST` | `/import` | Import layout config JSON | `{"layout_json": {...}}` | Yes |
-
-### 🛍️ Marketplace & Feedback Blueprint (`/api/marketplace`)
-
-| Method | Endpoint | Description | Payload/Params | Auth Required |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/` | Browse & search public layouts | `?q=search&language=Arabic&sort_by=likes` | Yes (Verified) |
-| `GET` | `/<layout_id>` | Fetch single layout latest details & ratings | None | Yes (Verified) |
-| `POST` | `/<layout_id>/favorite`| Toggle favorite status | None | Yes |
-| `POST` | `/<layout_id>/download`| Increment layout download count | None | No |
-| `GET` | `/<layout_id>/comments`| Fetch comments list | None | No |
-| `POST` | `/<layout_id>/comments`| Post layout feedback comment | `CommentCreateSchema` | Yes (Verified) |
-| `DELETE`| `/comments/<id>` | Delete comment | None | Yes |
-| `POST` | `/<layout_id>/rate` | Submit review rating score (1-5 stars) | `RatingCreateSchema` | Yes (Verified) |
-| `GET` | `/<layout_id>/my-rating`| Fetch user rating for layout | None | Yes |
-| `GET` | `/favorites` | Fetch user favorite layouts | None | Yes |
 
 ---
 

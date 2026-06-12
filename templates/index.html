@@ -5,55 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Keyboard Converter AI - Layout mappings and corrections</title>
     <meta name="description" content="Convert text typed with the wrong keyboard layout instantly. Customize mappings, share layouts, and correct text using optional AI integration.">
-    <!-- Typography & Font Icons -->
+    <!-- Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Main Style sheet -->
-    <link rel="stylesheet" href="/static/css/style.css?v=1.0.3">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css?v=2.0.0">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/static/favicon.png">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="dark-theme"> <!-- Default to premium dark theme -->
+<body class="dark-theme">
+    <!-- Skip to content — Accessibility -->
+    <a href="#view-content" class="skip-link">Skip to content</a>
+
     <div class="app-container">
         <!-- Sidebar Navigation -->
-        <aside class="app-sidebar">
+        <aside class="app-sidebar" role="navigation" aria-label="Main navigation">
             <div class="sidebar-header">
-                <div class="logo-icon">⌨️</div>
+                <div class="logo-icon"><i data-lucide="keyboard" style="width: 24px; height: 24px;"></i></div>
                 <div class="logo-text">SmartConverter</div>
             </div>
             
             <nav class="sidebar-nav">
-                <a href="#converter" class="nav-item active" id="nav-converter">
-                    <span class="nav-icon">🔄</span>
+                <div class="nav-section-label">Workspace</div>
+                <a href="#converter" class="nav-item active" id="nav-converter" aria-label="Text converter">
+                    <span class="nav-icon"><i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i></span>
                     <span class="nav-label">Converter</span>
                 </a>
-                <a href="#layouts" class="nav-item" id="nav-layouts">
-                    <span class="nav-icon">⌨️</span>
+                <a href="#layouts" class="nav-item" id="nav-layouts" aria-label="My keyboard layouts">
+                    <span class="nav-icon"><i data-lucide="keyboard" style="width: 18px; height: 18px;"></i></span>
                     <span class="nav-label">My Layouts</span>
                 </a>
-                <a href="#marketplace" class="nav-item" id="nav-marketplace">
-                    <span class="nav-icon">🌐</span>
+                <a href="#marketplace" class="nav-item" id="nav-marketplace" aria-label="Layout marketplace">
+                    <span class="nav-icon"><i data-lucide="globe" style="width: 18px; height: 18px;"></i></span>
                     <span class="nav-label">Marketplace</span>
                 </a>
-                <a href="#history" class="nav-item" id="nav-history">
-                    <span class="nav-icon">📜</span>
+
+                <div class="nav-section-label">Account</div>
+                <a href="#history" class="nav-item" id="nav-history" aria-label="Conversion history">
+                    <span class="nav-icon"><i data-lucide="clipboard-list" style="width: 18px; height: 18px;"></i></span>
                     <span class="nav-label">History</span>
                 </a>
-                <a href="#profile" class="nav-item" id="nav-profile">
-                    <span class="nav-icon">👤</span>
+                <a href="#profile" class="nav-item" id="nav-profile" aria-label="Profile and statistics">
+                    <span class="nav-icon"><i data-lucide="user" style="width: 18px; height: 18px;"></i></span>
                     <span class="nav-label">Profile & Stats</span>
                 </a>
             </nav>
 
             <div class="sidebar-footer">
                 <div class="theme-switch-container">
-                    <span class="theme-icon">☀️</span>
-                    <label class="switch">
+                    <span class="theme-icon"><i data-lucide="sun" style="width: 16px; height: 16px;"></i></span>
+                    <label class="switch" aria-label="Toggle dark mode">
                         <input type="checkbox" id="theme-toggle" checked>
                         <span class="slider round"></span>
                     </label>
-                    <span class="theme-icon">🌙</span>
+                    <span class="theme-icon"><i data-lucide="moon" style="width: 16px; height: 16px;"></i></span>
                 </div>
                 
                 <div class="user-profile-summary" id="sidebar-user-block">
@@ -62,11 +70,14 @@
             </div>
         </aside>
 
+        <!-- Sidebar backdrop for mobile -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
         <!-- Main Workspace Area -->
-        <main class="app-main">
+        <main class="app-main" role="main">
             <!-- Top Header bar -->
             <header class="app-header">
-                <button class="mobile-menu-toggle" id="mobile-menu-btn">☰</button>
+                <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Open navigation menu">☰</button>
                 <h1 class="header-title" id="current-view-title">Layout Converter</h1>
                 <div class="header-actions" id="header-user-actions">
                     <!-- Dynamic login/register CTA buttons -->
@@ -74,12 +85,12 @@
             </header>
 
             <!-- Dynamic Views Container -->
-            <div class="view-content">
+            <div class="view-content" id="view-content">
                 <!-- 1. Landing View -->
                 <section id="view-landing" class="app-view hidden">
                     <div class="hero-section">
                         <h2 class="hero-title">Type in the Wrong Layout?<br><span class="gradient-text">Correct it instantly.</span></h2>
-                        <p class="hero-subtitle">Translate text written under wrong keyboard mappings (e.g. typing English while keyboard is set to Arabic), build custom layouts, and enhance outputs with AI.</p>
+                        <p class="hero-subtitle">Translate text written under wrong keyboard mappings, build custom layouts, and enhance outputs with AI.</p>
                         <div class="hero-ctas">
                             <a href="#converter" class="btn btn-primary btn-large">Launch Converter</a>
                             <button class="btn btn-secondary btn-large" onclick="app.showAuthModal('register')">Create Free Account</button>
@@ -88,22 +99,22 @@
 
                     <div class="features-grid">
                         <div class="feature-card">
-                            <div class="feature-icon font-3d">🔌</div>
+                            <div class="feature-icon"><i data-lucide="zap" style="width: 28px; height: 28px;"></i></div>
                             <h3>PC default mappings</h3>
-                            <p>Instantly convert English-typed gibberish to Arabic PC layouts without configuring anything.</p>
+                            <p>Instantly convert English-typed text to Arabic PC layouts without configuring anything.</p>
                         </div>
                         <div class="feature-card">
-                            <div class="feature-icon font-3d">⚙️</div>
+                            <div class="feature-icon"><i data-lucide="settings" style="width: 28px; height: 28px;"></i></div>
                             <h3>Custom layout editor</h3>
-                            <p>Build and version layouts for any language, mapping characters, numbers, and composite diacritics.</p>
+                            <p>Build layouts for any language, mapping characters, numbers, and composite diacritics.</p>
                         </div>
                         <div class="feature-card">
-                            <div class="feature-icon font-3d">🪄</div>
+                            <div class="feature-icon"><i data-lucide="sparkles" style="width: 28px; height: 28px;"></i></div>
                             <h3>Optional AI correction</h3>
-                            <p>Enable OpenRouter integrations to contextually correct grammar and polish style on the fly.</p>
+                            <p>Enable OpenRouter integrations to contextually correct grammar and polish style.</p>
                         </div>
                         <div class="feature-card">
-                            <div class="feature-icon font-3d">🌍</div>
+                            <div class="feature-icon"><i data-lucide="globe" style="width: 28px; height: 28px;"></i></div>
                             <h3>Public marketplace</h3>
                             <p>Publish layouts, download mappings created by other users, and vote on favorites.</p>
                         </div>
@@ -126,26 +137,26 @@
                             
                             <div class="control-group">
                                 <label>Select Conversion Mode</label>
-                                <div class="mode-toggles-grid">
-                                    <button class="mode-btn active" data-mode="1" id="mode-btn-1">
+                                <div class="mode-toggles-grid" role="radiogroup" aria-label="Conversion mode selection">
+                                    <button class="mode-btn active" data-mode="1" id="mode-btn-1" role="radio" aria-checked="true">
                                         <div class="mode-num">Mode 1</div>
                                         <div class="mode-label">Raw Layout Only</div>
                                     </button>
-                                    <button class="mode-btn" data-mode="2" id="mode-btn-2">
+                                    <button class="mode-btn" data-mode="2" id="mode-btn-2" role="radio" aria-checked="false">
                                         <div class="mode-num">Mode 2</div>
                                         <div class="mode-label">AI Spell & Grammar</div>
                                     </button>
-                                    <button class="mode-btn" data-mode="3" id="mode-btn-3">
+                                    <button class="mode-btn" data-mode="3" id="mode-btn-3" role="radio" aria-checked="false">
                                         <div class="mode-num">Mode 3</div>
                                         <div class="mode-label">AI Style Enhancer</div>
                                     </button>
-                                    <button class="mode-btn" data-mode="4" id="mode-btn-4">
+                                    <button class="mode-btn" data-mode="4" id="mode-btn-4" role="radio" aria-checked="false">
                                         <div class="mode-num">Mode 4</div>
                                         <div class="mode-label">AI Text Completer</div>
                                     </button>
                                 </div>
                                 <p class="ai-disabled-warning hidden" id="ai-global-disabled-msg">
-                                    ⚠️ AI modes are disabled (OpenRouter credentials not configured in settings).
+                                    <i data-lucide="alert-triangle" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> AI modes are disabled (OpenRouter credentials not configured in settings).
                                 </p>
                             </div>
 
@@ -177,10 +188,10 @@
                                     <h3>Wrongly Typed Input</h3>
                                     <span class="char-counter" id="input-char-counter">0 / 10000</span>
                                 </div>
-                                <textarea id="converter-input-area" placeholder="Type or paste text here (e.g. type 'lphpf' with your layout set to English instead of Arabic)..." class="board-textarea" maxlength="10000"></textarea>
+                                <textarea id="converter-input-area" placeholder="Type or paste text here (e.g. type 'lphpf' with your layout set to English instead of Arabic)..." class="board-textarea" maxlength="10000" aria-label="Input text for conversion"></textarea>
                                 <div class="board-actions">
-                                    <button class="btn btn-secondary btn-sm" id="btn-clear-input">Clear</button>
-                                    <button class="btn btn-secondary btn-sm" id="btn-paste-input">Paste</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-clear-input" aria-label="Clear input">Clear</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-paste-input" aria-label="Paste from clipboard">Paste</button>
                                 </div>
                             </div>
 
@@ -190,9 +201,9 @@
                                     <h3>Converted Text</h3>
                                     <span class="direction-badge" id="output-direction-badge">LTR</span>
                                 </div>
-                                <div id="converter-output-display" class="board-output-display placeholder-text">Converted text will appear here as you type...</div>
+                                <div id="converter-output-display" class="board-output-display placeholder-text" aria-live="polite">Converted text will appear here as you type...</div>
                                 <div class="board-actions">
-                                    <button class="btn btn-secondary btn-sm" id="btn-copy-converted">Copy Converted</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-copy-converted" aria-label="Copy converted text">Copy Converted</button>
                                 </div>
                             </div>
 
@@ -202,10 +213,10 @@
                                     <h3>AI Enhanced Output</h3>
                                     <div class="ai-status-loader hidden" id="ai-loader-icon">Processing...</div>
                                 </div>
-                                <div id="converter-ai-display" class="board-output-display placeholder-text">Click process to fetch AI enhancement...</div>
+                                <div id="converter-ai-display" class="board-output-display placeholder-text" aria-live="polite">Click process to fetch AI enhancement...</div>
                                 <div class="board-actions">
                                     <button class="btn btn-primary btn-sm" id="btn-trigger-ai-process">Process AI</button>
-                                    <button class="btn btn-secondary btn-sm" id="btn-copy-ai">Copy AI Output</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-copy-ai" aria-label="Copy AI output">Copy AI Output</button>
                                     <button class="btn btn-secondary btn-sm" id="btn-replace-original">Use This</button>
                                 </div>
                             </div>
@@ -284,17 +295,17 @@
                         <div class="mapping-editor-section margin-top-lg">
                             <div class="mapping-section-header">
                                 <h3>Character Mapping Definition</h3>
-                                <button type="button" class="btn btn-secondary btn-sm" id="btn-add-mapping-row">+ Add Custom Row</button>
+                                <button type="button" class="btn btn-secondary btn-sm" id="btn-add-mapping-row">+ Add Row</button>
                             </div>
                             
-                            <p class="section-tip">Define what key combination typed in the wrong layout triggers the target character (e.g. Input: 'a', Output: 'ش'). Supports composite letters and symbol conversions.</p>
+                            <p class="section-tip">Define what key combination typed in the wrong layout triggers the target character (e.g. Input: 'a', Output: 'ش').</p>
                             
                             <div class="mapping-table-wrapper">
                                 <table class="mapping-editor-table">
                                     <thead>
                                         <tr>
-                                            <th>Key Press (Gibberish Input)</th>
-                                            <th>Mapped Value (Correct Target)</th>
+                                            <th>Key Press (Input)</th>
+                                            <th>Mapped Value (Target)</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -316,15 +327,15 @@
                 <section id="view-marketplace" class="app-view hidden">
                     <div class="marketplace-search-bar card">
                         <div class="search-input-wrapper">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" id="marketplace-search-input" placeholder="Search layouts by name, tags, description..." class="form-input">
+                            <span class="search-icon"><i data-lucide="search" style="width: 16px; height: 16px;"></i></span>
+                            <input type="text" id="marketplace-search-input" placeholder="Search layouts by name, tags, description..." class="form-input" aria-label="Search marketplace layouts">
                         </div>
                         <div class="filters-wrapper">
-                            <select id="marketplace-filter-lang" class="form-select">
+                            <select id="marketplace-filter-lang" class="form-select" aria-label="Filter by language">
                                 <option value="">All Languages</option>
                                 <!-- Dynamic languages populated -->
                             </select>
-                            <select id="marketplace-sort-select" class="form-select">
+                            <select id="marketplace-sort-select" class="form-select" aria-label="Sort results">
                                 <option value="likes">Sort by Likes</option>
                                 <option value="downloads">Sort by Downloads</option>
                                 <option value="newest">Sort by Newest</option>
@@ -373,6 +384,28 @@
                             <!-- Account settings -->
                             <div class="card profile-card">
                                 <h3>Account Information</h3>
+                                
+                                <!-- Profile Picture Upload Section -->
+                                <div class="profile-avatar-upload-container margin-top-sm">
+                                    <div class="profile-avatar-wrapper">
+                                        <div class="profile-avatar-preview" id="profile-avatar-preview">
+                                            <span id="profile-avatar-fallback">U</span>
+                                            <img id="profile-avatar-img" src="" alt="Profile Avatar" class="hidden">
+                                        </div>
+                                        <div class="profile-avatar-overlay" onclick="document.getElementById('avatar-input').click()">
+                                            <i data-lucide="camera" style="width: 20px; height: 20px; color: #fff;"></i>
+                                        </div>
+                                    </div>
+                                    <div class="profile-avatar-info">
+                                        <span class="avatar-title">Profile Picture</span>
+                                        <span class="avatar-subtitle">JPG, PNG, GIF or WEBP. Max size 2MB.</span>
+                                        <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/gif,image/webp" style="display: none;">
+                                        <button type="button" class="btn btn-secondary btn-sm margin-top-xs" id="btn-upload-avatar-trigger" onclick="document.getElementById('avatar-input').click()">
+                                            <i data-lucide="upload" style="width: 14px; height: 14px; margin-right: 6px;"></i> Change Photo
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <form id="profile-update-form" class="margin-top-sm">
                                     <div class="control-group">
                                         <label for="profile-email">Email Address</label>
@@ -380,7 +413,7 @@
                                     </div>
                                     <div class="control-group margin-top-sm" id="profile-verification-status-block">
                                         <label>Verification Status</label>
-                                        <div style="display: flex; align-items: center; justify-content: space-between; background-color: var(--input-bg); padding: 12px 16px; border-radius: var(--border-radius-md); border: 1px solid var(--border-glass);">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-secondary);">
                                             <span id="profile-verification-badge" class="badge">Checking status...</span>
                                             <button type="button" id="btn-profile-resend-verification" class="btn btn-secondary btn-sm hidden">Resend Email</button>
                                         </div>
@@ -462,11 +495,11 @@
     <!-- Modals & Overlays -->
 
     <!-- 1. Authentication Modal -->
-    <div class="modal-overlay hidden" id="auth-modal">
+    <div class="modal-overlay hidden" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="modal-card">
             <div class="modal-header">
                 <h3 id="auth-modal-title">Sign In</h3>
-                <button class="modal-close-btn" onclick="app.hideAuthModal()">×</button>
+                <button class="modal-close-btn" onclick="app.hideAuthModal()" aria-label="Close dialog">×</button>
             </div>
             <div class="modal-body">
                 <!-- Login form -->
@@ -522,7 +555,7 @@
 
                 <!-- Separator & OAuth buttons -->
                 <div class="auth-divider">Or continue with</div>
-                <button class="btn btn-secondary btn-full btn-oauth" id="btn-google-oauth">
+                <button class="btn btn-oauth btn-full" id="btn-google-oauth">
                     <span class="oauth-icon">🌐</span> Google Account
                 </button>
 
@@ -535,17 +568,17 @@
     </div>
 
     <!-- 2. Import Layout Modal -->
-    <div class="modal-overlay hidden" id="import-modal">
+    <div class="modal-overlay hidden" id="import-modal" role="dialog" aria-modal="true" aria-label="Import keyboard layout">
         <div class="modal-card">
             <div class="modal-header">
                 <h3>Import Keyboard Layout</h3>
-                <button class="modal-close-btn" onclick="document.getElementById('import-modal').classList.add('hidden')">×</button>
+                <button class="modal-close-btn" onclick="document.getElementById('import-modal').classList.add('hidden')" aria-label="Close dialog">×</button>
             </div>
             <div class="modal-body">
                 <div class="control-group">
                     <label>Select Layout JSON File</label>
                     <div class="file-upload-wrapper">
-                        <span class="file-upload-icon">📤</span>
+                        <span class="file-upload-icon"><i data-lucide="upload-cloud" style="width: 32px; height: 32px;"></i></span>
                         <span class="file-upload-text" id="import-file-label">Drag & drop your file here or click to browse</span>
                         <input type="file" id="import-file-input" accept=".json">
                     </div>
@@ -560,44 +593,53 @@
     </div>
 
     <!-- 3. Marketplace Detail Modal -->
-    <div class="modal-overlay hidden" id="marketplace-detail-modal">
+    <div class="modal-overlay hidden" id="marketplace-detail-modal" role="dialog" aria-modal="true" aria-labelledby="md-layout-name">
         <div class="modal-card modal-card-large">
             <div class="modal-header">
                 <h3 id="md-layout-name">Layout Title</h3>
-                <button class="modal-close-btn" id="marketplace-detail-close-btn">×</button>
+                <button class="modal-close-btn" id="marketplace-detail-close-btn" aria-label="Close dialog">×</button>
             </div>
             <div class="modal-body scrollable-modal-body">
                 <div class="layout-detail-info">
+                    <div class="detail-creator-profile">
+                        <div class="creator-avatar" id="md-creator-avatar">
+                            <span id="md-creator-fallback">A</span>
+                            <img id="md-creator-img" src="" alt="Creator Avatar" class="hidden">
+                        </div>
+                        <div class="creator-meta">
+                            <span class="creator-label">Published By</span>
+                            <span class="creator-name" id="md-layout-creator">Anonymous</span>
+                        </div>
+                    </div>
                     <p id="md-layout-desc" class="layout-description">Layout notes...</p>
                     <div class="detail-stats-badges">
                         <span class="badge badge-lang">Language: <b id="md-layout-lang">Arabic</b></span>
                         <span class="badge badge-dl">Downloads: <b id="md-layout-downloads">0</b></span>
                         <span class="badge badge-likes">Likes: <b id="md-layout-likes">0</b></span>
                         <span class="badge badge-rating">Rating: <b id="md-layout-rating">0.0/5</b></span>
-                        <span class="badge badge-creator">Publisher: <b id="md-layout-creator">Anonymous</b></span>
                     </div>
                 </div>
 
-                <div class="detail-action-buttons margin-top-md">
+                <div class="detail-action-buttons">
                     <button class="btn btn-primary" id="btn-md-download">Import & Edit</button>
-                    <button class="btn btn-secondary" id="btn-md-favorite">⭐ Favorite</button>
+                    <button class="btn btn-secondary" id="btn-md-favorite"><i data-lucide="star" style="width: 16px; height: 16px;"></i> <span id="fav-btn-text">Favorite</span></button>
                 </div>
 
                 <div class="ratings-submission-section margin-top-lg">
                     <h4>Submit Rating</h4>
-                    <div class="stars-container" id="stars-rating-selector">
-                        <span class="star-item" data-rating="1">★</span>
-                        <span class="star-item" data-rating="2">★</span>
-                        <span class="star-item" data-rating="3">★</span>
-                        <span class="star-item" data-rating="4">★</span>
-                        <span class="star-item" data-rating="5">★</span>
+                    <div class="stars-container" id="stars-rating-selector" role="radiogroup" aria-label="Rate this layout">
+                        <span class="star-item" data-rating="1" role="radio" aria-label="1 star" tabindex="0">★</span>
+                        <span class="star-item" data-rating="2" role="radio" aria-label="2 stars" tabindex="0">★</span>
+                        <span class="star-item" data-rating="3" role="radio" aria-label="3 stars" tabindex="0">★</span>
+                        <span class="star-item" data-rating="4" role="radio" aria-label="4 stars" tabindex="0">★</span>
+                        <span class="star-item" data-rating="5" role="radio" aria-label="5 stars" tabindex="0">★</span>
                     </div>
                 </div>
 
                 <div class="comments-section margin-top-lg">
                     <h4>Community Comments (<span id="md-comments-count">0</span>)</h4>
                     <div class="comment-input-block margin-top-sm">
-                        <input type="text" id="marketplace-comment-input" placeholder="Type a comment..." class="form-input">
+                        <input type="text" id="marketplace-comment-input" placeholder="Type a comment..." class="form-input" aria-label="Write a comment">
                         <button class="btn btn-secondary" id="btn-md-post-comment">Post</button>
                     </div>
                     <div class="comments-feed-list margin-top-md" id="md-comments-feed">
@@ -609,13 +651,13 @@
     </div>
 
     <!-- Global Toast Container -->
-    <div class="toast-container" id="toast-holder"></div>
+    <div class="toast-container" id="toast-holder" aria-live="polite"></div>
 
-    <!-- Application Script Scripts -->
-    <script src="/static/js/api.js?v=1.0.3"></script>
-    <script src="/static/js/converter.js?v=1.0.3"></script>
-    <script src="/static/js/editor.js?v=1.0.3"></script>
-    <script src="/static/js/marketplace.js?v=1.0.3"></script>
-    <script src="/static/js/app.js?v=1.0.3"></script>
+    <!-- Application Scripts -->
+    <script src="/static/js/api.js?v=2.0.0"></script>
+    <script src="/static/js/converter.js?v=2.0.0"></script>
+    <script src="/static/js/editor.js?v=2.0.0"></script>
+    <script src="/static/js/marketplace.js?v=2.0.0"></script>
+    <script src="/static/js/app.js?v=2.0.0"></script>
 </body>
 </html>

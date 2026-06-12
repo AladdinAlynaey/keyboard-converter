@@ -146,8 +146,8 @@ class LayoutRepository(BaseRepository):
         items = list(cursor)
         user_ids = [item["user_id"] for item in items if item.get("user_id")]
         
-        # Batch lookup publisher names from the users collection
-        user_name_map = {}
+        # Batch lookup publisher names and avatars from the users collection
+        user_map = {}
         if user_ids:
             try:
                 obj_ids = []
@@ -157,7 +157,7 @@ class LayoutRepository(BaseRepository):
                     except Exception:
                         pass
                 users = self.db["users"].find({"_id": {"$in": obj_ids}})
-                user_name_map = {str(u["_id"]): u.get("name", "Anonymous") for u in users}
+                user_map = {str(u["_id"]): {"name": u.get("name", "Anonymous"), "profile_picture": u.get("profile_picture")} for u in users}
             except Exception:
                 pass
 
@@ -167,8 +167,10 @@ class LayoutRepository(BaseRepository):
             item["id"] = str(item["_id"])
             del item["_id"]
             
-            # Dynamically attach current publisher name
-            item["creator_name"] = user_name_map.get(item.get("user_id"), item.get("creator_name", "Anonymous"))
+            # Dynamically attach current publisher name and avatar
+            user_info = user_map.get(item.get("user_id"), {})
+            item["creator_name"] = user_info.get("name", item.get("creator_name", "Anonymous"))
+            item["creator_avatar"] = user_info.get("profile_picture")
             
             # Fetch average rating
             rating_stats = self.get_layout_rating_stats(item["layout_id"])
@@ -239,9 +241,9 @@ class LayoutRepository(BaseRepository):
             except Exception:
                 continue
 
-        # Batch lookup publisher names for favorites
+        # Batch lookup publisher names and avatars for favorites
         user_ids = [layout.get("user_id") for layout in results if layout.get("user_id")]
-        user_name_map = {}
+        user_map = {}
         if user_ids:
             try:
                 obj_ids = []
@@ -251,12 +253,14 @@ class LayoutRepository(BaseRepository):
                     except Exception:
                         pass
                 users = self.db["users"].find({"_id": {"$in": obj_ids}})
-                user_name_map = {str(u["_id"]): u.get("name", "Anonymous") for u in users}
+                user_map = {str(u["_id"]): {"name": u.get("name", "Anonymous"), "profile_picture": u.get("profile_picture")} for u in users}
             except Exception:
                 pass
                 
         for layout in results:
-            layout["creator_name"] = user_name_map.get(layout.get("user_id"), layout.get("creator_name", "Anonymous"))
+            user_info = user_map.get(layout.get("user_id"), {})
+            layout["creator_name"] = user_info.get("name", layout.get("creator_name", "Anonymous"))
+            layout["creator_avatar"] = user_info.get("profile_picture")
 
         return results
 
@@ -289,6 +293,27 @@ class LayoutRepository(BaseRepository):
             item["id"] = str(item["_id"])
             del item["_id"]
             comments.append(item)
+
+        user_ids = [comment.get("user_id") for comment in comments if comment.get("user_id")]
+        user_map = {}
+        if user_ids:
+            try:
+                obj_ids = []
+                for uid in user_ids:
+                    try:
+                        obj_ids.append(ObjectId(uid))
+                    except Exception:
+                        pass
+                users = self.db["users"].find({"_id": {"$in": obj_ids}})
+                user_map = {str(u["_id"]): {"name": u.get("name", "Anonymous"), "profile_picture": u.get("profile_picture")} for u in users}
+            except Exception:
+                pass
+
+        for comment in comments:
+            user_info = user_map.get(comment.get("user_id"), {})
+            comment["creator_name"] = user_info.get("name", comment.get("creator_name", "Anonymous"))
+            comment["creator_avatar"] = user_info.get("profile_picture")
+
         return comments
 
     # --- Ratings Operations ---

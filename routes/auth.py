@@ -86,7 +86,8 @@ def login():
             "email": user["email"],
             "name": user["name"],
             "is_verified": user["is_verified"],
-            "ai_settings": user.get("ai_settings", {})
+            "ai_settings": user.get("ai_settings", {}),
+            "profile_picture": user.get("profile_picture")
         }
     })
     
@@ -241,7 +242,8 @@ def google_oauth():
             "email": user["email"],
             "name": user["name"],
             "is_verified": user["is_verified"],
-            "ai_settings": user.get("ai_settings", {})
+            "ai_settings": user.get("ai_settings", {}),
+            "profile_picture": user.get("profile_picture")
         }
     })
     
@@ -263,7 +265,8 @@ def get_profile():
             "email": user["email"],
             "name": user["name"],
             "is_verified": user["is_verified"],
-            "ai_settings": user.get("ai_settings", {})
+            "ai_settings": user.get("ai_settings", {}),
+            "profile_picture": user.get("profile_picture")
         }
     })
 
@@ -321,3 +324,93 @@ def get_user_stats():
     layouts_count = user_repo.db["layouts"].count_documents({"user_id": user_id})
     stats["layouts_count"] = layouts_count
     return jsonify(stats)
+
+@auth_bp.route("/profile/avatar", methods=["POST"])
+@jwt_required()
+def upload_avatar():
+    import os
+    import uuid
+    
+    user_id = get_jwt_identity()
+    user = user_repo.get_by_id(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if "avatar" not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+
+    file = request.files["avatar"]
+    if file.filename == "":
+        return jsonify({"error": "No file selected for uploading"}), 400
+
+    # Validate file size (max 2MB)
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    if file_length > 2 * 1024 * 1024:
+        return jsonify({"error": "File size exceeds the 2MB limit"}), 400
+
+    # Reset file pointer to read magic bytes
+    file.seek(0)
+    header = file.read(12)
+    file.seek(0)
+
+    # Magic byte signatures definition
+    ALLOWED_MAGIC_BYTES = {
+        b"\xff\xd8\xff": "image/jpeg",
+        b"\x89PNG\r\n\x1a\n": "image/png",
+        b"GIF87a": "image/gif",
+        b"GIF89a": "image/gif",
+        b"RIFF": "image/webp"
+    }
+
+    # Match magic bytes
+    matched_type = None
+    for prefix, mime_type in ALLOWED_MAGIC_BYTES.items():
+        if header.startswith(prefix):
+            if mime_type == "image/webp":
+                if len(header) >= 12 and header[8:12] == b"WEBP":
+                    matched_type = "image/webp"
+            else:
+                matched_type = mime_type
+            break
+
+    if not matched_type:
+        return jsonify({"error": "Invalid file type. Only JPEG, PNG, GIF, and WEBP images are allowed."}), 400
+
+    # Determine extension
+    ext = ".jpg"
+    if matched_type == "image/png":
+        ext = ".png"
+    elif matched_type == "image/gif":
+        ext = ".gif"
+    elif matched_type == "image/webp":
+        ext = ".webp"
+
+    # Define upload path
+    upload_dir = os.path.join(os.getcwd(), "static", "uploads", "avatars")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    # Delete old avatar file if it exists
+    old_avatar = user.get("profile_picture")
+    if old_avatar and old_avatar.startswith("/static/uploads/avatars/"):
+        old_filename = os.path.basename(old_avatar)
+        old_file_path = os.path.join(upload_dir, old_filename)
+        if os.path.exists(old_file_path):
+            try:
+                os.remove(old_file_path)
+            except Exception:
+                pass
+
+    # Save new avatar file
+    filename = f"{uuid.uuid4().hex}{ext}"
+    file_path = os.path.join(upload_dir, filename)
+    file.save(file_path)
+
+    # Update database
+    new_avatar_url = f"/static/uploads/avatars/{filename}"
+    user_repo.update(user_id, {"profile_picture": new_avatar_url})
+
+    return jsonify({
+        "message": "Profile picture updated successfully",
+        "profile_picture": new_avatar_url
+    })

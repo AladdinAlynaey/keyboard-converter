@@ -21,10 +21,32 @@ const LayoutsManagerUI = {
             }
 
             if (layouts.length === 0) {
-                const emptyMsg = document.createElement('div');
-                emptyMsg.className = 'card placeholder-text';
-                emptyMsg.textContent = "You don't have any custom keyboard layouts yet. Click Add New Layout to create one!";
-                container.appendChild(emptyMsg);
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.style.gridColumn = '1 / -1';
+
+                const icon = document.createElement('div');
+                icon.className = 'empty-state-icon';
+                icon.innerHTML = '<i data-lucide="keyboard" style="width: 48px; height: 48px;"></i>';
+
+                const title = document.createElement('div');
+                title.className = 'empty-state-title';
+                title.textContent = 'No custom layouts yet';
+
+                const desc = document.createElement('div');
+                desc.className = 'empty-state-description';
+                desc.textContent = 'Create your first keyboard layout to start converting text with custom mappings.';
+
+                const cta = document.createElement('button');
+                cta.className = 'btn btn-primary';
+                cta.textContent = 'Create Layout';
+                cta.addEventListener('click', () => app.navigateTo('editor'));
+
+                emptyState.appendChild(icon);
+                emptyState.appendChild(title);
+                emptyState.appendChild(desc);
+                emptyState.appendChild(cta);
+                container.appendChild(emptyState);
             } else {
                 layouts.forEach(layout => {
                     const card = this.createLayoutCard(layout);
@@ -34,6 +56,7 @@ const LayoutsManagerUI = {
             
             // Draw default system templates
             this.renderSystemTemplates();
+            if (window.lucide) { window.lucide.createIcons(); }
         } catch (err) {
             app.toast("Error contacting database", "error");
         }
@@ -85,7 +108,7 @@ const LayoutsManagerUI = {
 
             const sysBadge = document.createElement('span');
             sysBadge.className = 'badge';
-            sysBadge.textContent = '⚙️ System Preset';
+            sysBadge.innerHTML = '<i data-lucide="settings" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> System Preset';
 
             metaLine.appendChild(langBadge);
             metaLine.appendChild(charsBadge);
@@ -101,7 +124,7 @@ const LayoutsManagerUI = {
 
             const btnImport = document.createElement('button');
             btnImport.className = 'btn btn-primary btn-sm';
-            btnImport.textContent = '📥 Import Template';
+            btnImport.innerHTML = '<i data-lucide="download" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Import Template';
             btnImport.addEventListener('click', () => this.importSystemTemplate(tpl));
 
             footer.appendChild(btnImport);
@@ -109,6 +132,7 @@ const LayoutsManagerUI = {
 
             container.appendChild(card);
         });
+        if (window.lucide) { window.lucide.createIcons(); }
     },
 
     async importSystemTemplate(tpl) {
@@ -156,7 +180,11 @@ const LayoutsManagerUI = {
 
         const publicBadge = document.createElement('span');
         publicBadge.className = `badge ${layout.is_public ? 'success' : ''}`;
-        publicBadge.textContent = layout.is_public ? '🌐 Public' : '🔒 Private';
+        if (layout.is_public) {
+            publicBadge.innerHTML = '<i data-lucide="globe" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Public';
+        } else {
+            publicBadge.innerHTML = '<i data-lucide="lock" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Private';
+        }
         
         metaLine.appendChild(langBadge);
         metaLine.appendChild(charsBadge);
@@ -175,29 +203,33 @@ const LayoutsManagerUI = {
 
         const btnEdit = document.createElement('button');
         btnEdit.className = 'btn btn-secondary btn-sm';
-        btnEdit.textContent = '✏️ Edit';
+        btnEdit.innerHTML = '<i data-lucide="edit-3" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Edit';
         btnEdit.addEventListener('click', () => {
             app.navigateTo('editor', { id: layout.id });
         });
 
         const btnDup = document.createElement('button');
         btnDup.className = 'btn btn-secondary btn-sm';
-        btnDup.textContent = '📋 Clone';
+        btnDup.innerHTML = '<i data-lucide="copy" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Clone';
         btnDup.addEventListener('click', () => this.duplicateLayout(layout.id, layout.name));
 
         const btnExport = document.createElement('button');
         btnExport.className = 'btn btn-secondary btn-sm';
-        btnExport.textContent = '📤 Export';
+        btnExport.innerHTML = '<i data-lucide="download" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Export';
         btnExport.addEventListener('click', () => this.exportLayout(layout));
 
         const btnPub = document.createElement('button');
         btnPub.className = `btn ${layout.is_public ? 'btn-danger' : 'btn-primary'} btn-sm`;
-        btnPub.textContent = layout.is_public ? '🔒 Unpublish' : '🌐 Publish';
+        if (layout.is_public) {
+            btnPub.innerHTML = '<i data-lucide="lock" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Unpublish';
+        } else {
+            btnPub.innerHTML = '<i data-lucide="globe" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Publish';
+        }
         btnPub.addEventListener('click', () => this.togglePublish(layout));
 
         const btnDel = document.createElement('button');
         btnDel.className = 'btn btn-danger btn-sm';
-        btnDel.textContent = '🗑️ Delete';
+        btnDel.innerHTML = '<i data-lucide="trash-2" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Delete';
         btnDel.addEventListener('click', () => this.deleteLayout(layout.id));
 
         footer.appendChild(btnEdit);
@@ -467,7 +499,7 @@ const LayoutEditorUI = {
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.className = 'btn btn-danger btn-sm';
-        delBtn.textContent = 'Remove';
+        delBtn.innerHTML = '<i data-lucide="trash-2" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 3px;"></i> Remove';
         delBtn.addEventListener('click', () => {
             row.remove();
         });
@@ -478,6 +510,7 @@ const LayoutEditorUI = {
         row.appendChild(tdAction);
 
         container.appendChild(row);
+        if (window.lucide) { window.lucide.createIcons(); }
     },
 
     async loadLayoutToForm(id) {
@@ -504,6 +537,7 @@ const LayoutEditorUI = {
             Object.entries(mapping).forEach(([key, val]) => {
                 this.addMappingRow(key, val);
             });
+            if (window.lucide) { window.lucide.createIcons(); }
         } catch (e) {
             app.toast("Failed to parse layout from DB", "error");
         }

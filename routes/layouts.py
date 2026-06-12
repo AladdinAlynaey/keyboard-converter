@@ -125,6 +125,28 @@ def publish_layout(id):
     # Sanitize tags
     tags = [str(t).strip()[:20] for t in tags if t][:5]
 
+    # Retrieve user's layout to check its mapping configuration
+    layout = layout_repo.get_user_layout(id, user_id)
+    if not layout:
+        return jsonify({"error": "Layout not found or access denied"}), 404
+
+    current_mapping = layout.get("mapping")
+    if not current_mapping:
+        return jsonify({"error": "Layout has no mapping configuration"}), 400
+
+    # Compare against system default layouts
+    from routes.converter import DEFAULT_EN_AR_MAPPING, DEFAULT_AR_EN_MAPPING
+    if current_mapping == DEFAULT_EN_AR_MAPPING or current_mapping == DEFAULT_AR_EN_MAPPING:
+        return jsonify({"error": "Failed to publish: This layout configuration matches a system default layout."}), 400
+
+    # Compare against all other published layouts in the database (excluding itself)
+    duplicate_published = layout_repo.published_collection.find_one({
+        "mapping": current_mapping,
+        "layout_id": {"$ne": id}
+    })
+    if duplicate_published:
+        return jsonify({"error": "Failed to publish: This layout configuration is identical to another already published layout."}), 400
+
     success = layout_repo.publish_layout(id, user_id, tags)
     if not success:
         return jsonify({"error": "Layout not found or access denied"}), 404
